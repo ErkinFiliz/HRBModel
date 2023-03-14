@@ -1,0 +1,53 @@
+clc, clear
+
+% Hidrolik rejeneretif frenleme sistemi model parametreleri
+% Erkin Filiz
+% Son Güncelleme Tarihi: 09.03.2023
+
+%% Simülasyon Parametreleri
+open_system('HRBModel.slx'); 
+T_sim = 200; % Simülasyon Zamanı tT
+ilk_hiz = 0; % Aracın Simülasyon Başındaki Hızı [m/s]
+P1 = 395; % Akümülatörün Simülasyon Başındaki Basıncı [Bar]
+act_time = 10; % Pompa veya Motorun Tam Deplasman Açıklığına Gelene Kadar Geçen Süre [s]
+set_param('HRBModel/M_P', 'sw', '1') % Pompa ve Motor Arasında seçim. Motor:1 Pompa:0
+
+%% Araç Parametreleri
+m = 18000; % Araç Kütlesi [kg]
+A = (3079-242)*2540/10^6; % Aracın Ön Alanı [m^2]
+r = 0.5715; % Tekerlek Yarıçapı [m]
+
+%% Araca Etki Eden Kuvvetlerin ve Çevrenin Parametreleri
+rho = 1.225; % Hava Yoğunluğu [kg/m^3]
+Cd = 0.8; % Hava Sürtünmesi Katsayısı [-]
+g = 9.81; % Yerçekimi İvmesi [m/s^2]
+alpha = deg2rad(0); % Eğim Açısı [deg]
+Cr = 0.018; % Yuvarlanma Direnci Katsayısı [-] (jazaar p.134)
+Patm = 1; % Atmosfer basıncı [Bar] (tank basıncı atmosfer kabul edildi)
+
+%% Akümülator Parametreleri
+V0 = 0.06; % Akümülator Hacmi [m^3]
+P0 = 50; % Precharge Basıncı [Bar]
+gamma = 1.4; % Polytropic Gaz Katsayısı [-]
+Pmax = 400; % Maks Akümülatör Basıncı [Bar]
+
+%% Hidrolik Sistem Motor-Pompa Parametreleri
+DV = 80; % Deplasman [cm^3/rev]
+mech_eff = 0.9; % Mekanik Pompa Verimi [-]
+vol_eff = 0.9; % Hacimsel Verim [-]
+rho_oil = 700; % Yağ Yoğunluğu [kg/m^3]
+A_Tank = 0.25; % Yağ Tank Taban Alanı [m^2]
+V_oil = 0.1; % Sistemdeki Toplam Yağ Hacmi [m^3]
+R_PM_Aku = 0.07; % Pompa/Motor ve Akümülatör Arasındaki Bileşenlerin Hidrolik Direnç Katsayısı [-]
+R_PM_Tank = 0.07; % Pompa/Motor ve Tank Arasındaki Bileşenlerin Hidrolik Direnç Katsayısı [-]
+
+%% Hidromotor-Araç Şaftı İlişkisi (önceki modelden alındı)
+R_HA = 7; % Aktarma Oranı [-]
+mu_HA = 0.80; % Aktarma Verimi [-]
+
+%% Araç-Teker Şaftı İlişkisi (önceki modelden alındı)
+R_AT = 4.11; % Aktarma Oranı [-]
+mu_AT = 0.80; % Aktarma Verimi [-]
+
+%% Simulation
+out = sim('HRBModel.slx');
