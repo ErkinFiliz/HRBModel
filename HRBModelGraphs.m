@@ -2,30 +2,22 @@ close all
 
 % Hidrolik rejeneretif frenleme sistemi modeli veri toplama ve işleme
 % Erkin Filiz
-% Son Güncelleme Tarihi: 09.03.2023
+% Son Güncelleme Tarihi: 20.03.2023
 
 %% Modeli Açma ve Genel Parametreler
 open_system('HRBModel.slx');
-DictObj = Simulink.data.dictionary.open('HRBData.sldd');
-DesignData = getSection(DictObj,'Design Data');
-% Kullanılacak parametreler
-T_sim_obj = getEntry(DesignData,'T_sim');
-act_time_obj = getEntry(DesignData,'act_time');
-P1_obj = getEntry(DesignData,'P1');
-ilk_hiz_obj = getEntry(DesignData,'ilk_hiz');
-% Genel parametrelerin ayarlanması
-T_sim_temp = 200; % Simülasyon Zamanı [s]
-setValue(T_sim_obj,T_sim_temp);
-act_time_temp = 4; % Pompa veya Motorun Tam Deplasman Açıklığına Gelene Kadar Geçen Süre [s]
-setValue(act_time_obj,act_time_temp);
+T_sim_temp = 50; % Simülasyon Süresi
+Simulink.data.evalinGlobal('HRBModel','T_sim.Value = T_sim_temp');
+act_time_temp = 10; % Pompa veya Motorun Tam Deplasman Açıklığına Gelene Kadar Geçen Süre [s]
+Simulink.data.evalinGlobal('HRBModel','act_time.Value = act_time_temp');
 
 %% Kalkış İçin Parametreler ve Veri Toplama
 set_param('HRBModel/M_P', 'sw', '1') % Pompa ve Motor Arasında seçim. Motor:1 Pompa:0
 P1_temp = 395; % Akümülatörün Simülasyon Başındaki Basıncı (Şarj Durumu) [Bar]
-setValue(P1_obj,P1_temp);
+Simulink.data.evalinGlobal('HRBModel','P1.Value = P1_temp');
 ilk_hiz_temp = 0; % Aracın Simülasyon Başındaki Hızı [m/s]
+Simulink.data.evalinGlobal('HRBModel','ilk_hiz.Value = ilk_hiz_temp');
 out = sim('HRBModel.slx');
-setValue(ilk_hiz_obj,ilk_hiz_temp);
 t_k = out.tout; % Kalkış Simülasyonu Zaman Arrayi
 ivme_k = out.Acceleration;
 hiz_k = out.Velocity;
@@ -37,9 +29,9 @@ debi_k = out.flowrt;
 %% Frenleme İçin Parametreler ve Veri Toplama
 set_param('HRBModel/M_P', 'sw', '0') % Pompa ve Motor Arasında seçim. Motor:1 Pompa:0
 P1_temp = 60; % Akümülatörün Simülasyon Başındaki Basıncı (Şarj Durumu) [Bar]
-setValue(P1_obj,P1_temp);
+Simulink.data.evalinGlobal('HRBModel','P1.Value = P1_temp');
 ilk_hiz_temp = 15; % Aracın Simülasyon Başındaki Hızı [m/s]
-setValue(ilk_hiz_obj,ilk_hiz_temp);
+Simulink.data.evalinGlobal('HRBModel','ilk_hiz.Value = ilk_hiz_temp');
 out = sim('HRBModel.slx');
 t_f = out.tout; % Frenleme Simülasyonu Zaman Arrayi
 ivme_f = out.Acceleration;
